@@ -220,11 +220,11 @@ struct ContentView: View {
                         startDetectDrag = false
                     }
                 }
-                else{
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5){
-                        rotateDegree = 270
-                    }
-                }
+//                else{
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5){
+//                        rotateDegree = 270
+//                    }
+                
                 
             }
                 
