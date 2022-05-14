@@ -28,10 +28,23 @@ struct ContentView: View {
     @State private var show = false
     //@State private var rotateDegree: Double = 0
     @State private var startT:Double=60.0
+    @State private var game = 0
     //@State private var arrs: [[arr]] = Array(repeating: Array(repeating: Donut(),count: 5),count: 5)
     
     func initial(){
         candy.removeAll()
+        startT = 60
+        game = 1
+        for _ in 1...25{
+            candy.append(Data(name: Int.random(in: 1..<8)))
+        }
+        canDo()
+        //rotateDegree = 180
+    }
+    func randomAll(){
+        candy.removeAll()
+        //startT = 60
+        //game = 1
         for _ in 1...25{
             candy.append(Data(name: Int.random(in: 1..<8)))
         }
@@ -74,11 +87,14 @@ struct ContentView: View {
 //        for i in 0...24{
 //            candy[i].rotateDegree = 0
 //        }
-        candy[site].name = Int.random(in: 1..<8)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1){
-            candy[site].rotateDegree = 360
+        candy[site].rotateDegree = 360
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1){
+            candy[site].name = Int.random(in: 1..<8)
         }
-        candy[site].rotateDegree = 0
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5){
+            candy[site].rotateDegree = 0
+        }
+        //canDo()
         
         //}
     }
@@ -172,7 +188,7 @@ struct ContentView: View {
             }
         }
     }
-    
+    //
     func dragGesture(index: Int) -> some Gesture {
         DragGesture(minimumDistance: 0)
             .onChanged({ value in
@@ -248,24 +264,36 @@ struct ContentView: View {
             
     }
     var body: some View {
-
+        
         VStack{
-            Text("score:\(score)")
-            Button("start"){
+            Text("Score:\(score)")
+                .font(.title)
+            Button{
                 initial()
                 canDo()
                 score = 0
+                for i in 0...24{
+                    candy[i].rotateDegree = 360
+                }
+            }label:{
+                Text("NewGame")
+                    .font(.title)
             }
             VStack(spacing:0){
                 Text("剩餘時間: \(String(format: "%.1f", startT))")
                     .onAppear{
                         Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true){ t in
-                            startT -= 0.1
-                            if startT < 0.1{
+                            if(game == 1){
+                                startT -= 0.1
+                            }
+                            if (startT < 0.1 && game == 1){
                                 startT=0
+                                let controller = UIAlertController(title: "You score: \(score)！\n", message: "點擊start重置遊戲", preferredStyle: .alert)
+                                let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+                                    controller.addAction(okAction)
+                                UIApplication.shared.keyWindow?.rootViewController?.present(controller, animated: true, completion: nil)
                                 //initial()
-                                //highScore = max(highScore,score)
-                                //t.invalidate()
+                                game = 0
                             }
                         }
                     }
@@ -296,18 +324,23 @@ struct ContentView: View {
                     
                     }
                 }
-                Button("random"){
-                    initial()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1){
-                        for i in 0...24{
-                            candy[i].rotateDegree = 360
-                        }
-                    }
-                    for i in 0...24{
-                        candy[i].rotateDegree = 0
-                    }
-                    //
+                Button{
+                    randomAll()
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1){
+//                        for i in 0...24{
+//                            candy[i].rotateDegree = 360
+//                        }
+//                    }
+//                    for i in 0...24{
+//                        candy[i].rotateDegree = 0
+//                    }
+//
+                }label:{
+                        Text("random")
+                            .font(.title)
                 }
+                    //
+                
             }
             
         }
