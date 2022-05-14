@@ -10,6 +10,7 @@ import SwiftUI
 struct Data: Identifiable{
     let id = UUID()
     var name: Int
+    var rotateDegree: Double = 0
 }
 
 struct ContentView: View {
@@ -25,7 +26,7 @@ struct ContentView: View {
     @State private var isChange = 0
     @State private var score = 0
     @State private var show = false
-    @State private var rotateDegree: Double = 0
+    //@State private var rotateDegree: Double = 0
     @State private var startT:Double=60.0
     //@State private var arrs: [[arr]] = Array(repeating: Array(repeating: Donut(),count: 5),count: 5)
     
@@ -34,6 +35,7 @@ struct ContentView: View {
         for _ in 1...25{
             candy.append(Data(name: Int.random(in: 1..<8)))
         }
+        canDo()
         //rotateDegree = 180
     }
     //
@@ -69,16 +71,28 @@ struct ContentView: View {
     func randomNew(site: Int){
             //candy[site].rotateDegree = 0
         //withAnimation(.easeInOut(duration:0.3)){
-            candy[site].name = Int.random(in: 1..<7)
+//        for i in 0...24{
+//            candy[i].rotateDegree = 0
+//        }
+        candy[site].name = Int.random(in: 1..<8)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1){
+            candy[site].rotateDegree = 360
+        }
+        candy[site].rotateDegree = 0
+        
         //}
     }
     //
     func canDo(){
         var sameC = 0
+        var sameC2 = 0
         var num = 0
         isChange = 0
+//        for v in 0...24{
+//            candy[v].rotateDegree = 0
+//        }
         //直的
-        for i in 0...19{
+        for i in 0...24{
             sameC = 0
             num = i + 5
             while(num<25){
@@ -91,70 +105,69 @@ struct ContentView: View {
                     break
                 }
             }
-            if(sameC>=2){
+            if(sameC==2){
                 isChange = 1
                 score += 10
-                if(sameC>=3){
-                    score += 10
-                    if(sameC==4){
-                        score += 10
-                        randomNew(site: i)
-                        randomNew(site: i+5)
-                        randomNew(site: i+10)
-                        randomNew(site: i+15)
-                        randomNew(site: i+20)
-                    }
-                    randomNew(site: i)
-                    randomNew(site: i+5)
-                    randomNew(site: i+10)
-                    randomNew(site: i+15)
-                }
                 randomNew(site: i)
                 randomNew(site: i+5)
                 randomNew(site: i+10)
-//                candy[i].name = 0
-//                candy[i+5].name = 0
-//                candy[i+10].name = 0
-                //return true
             }
-            
+            if(sameC==3){
+                isChange = 1
+                score += 20
+                randomNew(site: i)
+                randomNew(site: i+5)
+                randomNew(site: i+10)
+                randomNew(site: i+15)
+            }
+            if(sameC==4){
+                isChange = 1
+                score += 30
+                randomNew(site: i)
+                randomNew(site: i+5)
+                randomNew(site: i+10)
+                randomNew(site: i+15)
+                randomNew(site: i+20)
+            }
         }
         //橫的
         for j in 0...23{
-            sameC = 0
+            sameC2 = 0
             num = j + 1
             if(j%5 < 3){
                 while(num%5<=4 && num<25){
                     if(candy[j].name==candy[num].name && candy[num].name==candy[num-1].name){
                         num = num + 1
-                        sameC += 1
-                        print("asr-\(sameC)")
+                        sameC2 += 1
+                        print("asr-\(sameC2)")
                     }
                     else{
                         break
                     }
                 }
-                if(sameC>=2){
-                    score += 10
+                if(sameC2==2){
                     isChange = 1
-                    if(sameC>=3){
-                        score += 10
-                        if(sameC==4){
-                            score += 10
-                            randomNew(site: j)
-                            randomNew(site: j+1)
-                            randomNew(site: j+2)
-                            randomNew(site: j+3)
-                            randomNew(site: j+4)
-                        }
-                        randomNew(site: j)
-                        randomNew(site: j+1)
-                        randomNew(site: j+2)
-                        randomNew(site: j+3)
-                    }
+                    score += 10
                     randomNew(site: j)
                     randomNew(site: j+1)
                     randomNew(site: j+2)
+                }
+                if(sameC2==3){
+                    isChange = 1
+                    score += 20
+                    randomNew(site: j)
+                    randomNew(site: j+1)
+                    randomNew(site: j+2)
+                    randomNew(site: j+3)
+                }
+                if(sameC2==4){
+                    isChange = 1
+                    score += 30
+                    randomNew(site: j)
+                    randomNew(site: j+1)
+                    randomNew(site: j+2)
+                    randomNew(site: j+3)
+                    randomNew(site: j+4)
                 }
             }
         }
@@ -220,6 +233,10 @@ struct ContentView: View {
                         startDetectDrag = false
                     }
                 }
+                //canDo()
+//                for i in 0...24{
+//                    candy[i].rotateDegree = 0
+//                }
 //                else{
 //                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5){
 //                        rotateDegree = 270
@@ -236,6 +253,7 @@ struct ContentView: View {
             Text("score:\(score)")
             Button("start"){
                 initial()
+                canDo()
                 score = 0
             }
             VStack(spacing:0){
@@ -267,11 +285,11 @@ struct ContentView: View {
                         .overlay(
                             Image("\(data.name)")
                                 .resizable()
-                                .rotationEffect(.degrees(rotateDegree))
+                                .rotationEffect(.degrees(candy[index].rotateDegree))
                                 .animation(
                                    Animation.linear(duration: 2)
                                       .repeatCount(1, autoreverses: false),
-                                   value: rotateDegree
+                                    value: candy[index].rotateDegree
                                 )
                                 .gesture(dragGesture(index: index))
                         )
@@ -281,9 +299,13 @@ struct ContentView: View {
                 Button("random"){
                     initial()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1){
-                        rotateDegree = 360
+                        for i in 0...24{
+                            candy[i].rotateDegree = 360
+                        }
                     }
-                    rotateDegree = 0
+                    for i in 0...24{
+                        candy[i].rotateDegree = 0
+                    }
                     //
                 }
             }
